@@ -350,6 +350,7 @@
 "Assets/Scripts/Characters/Pawn.cs"
 "Assets/Scripts/Commons/Global.cs"
 "Assets/Scripts/Managers/GameManager.cs"
+"Assets/Scripts/Managers/MovementManager.cs"
 "Assets/Scripts/Managers/SelectionManager.cs"
 "Assets/Scripts/Managers/SessionManager.cs"
 "Assets/Scripts/Navigation/Movable.cs"

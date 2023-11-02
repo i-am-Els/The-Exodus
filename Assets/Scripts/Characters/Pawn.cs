@@ -2,32 +2,37 @@ using UnityEngine;
 using UnityEngine.AI;
 
 using Behavior;
+using Managers;
 using Navigation;
 
 namespace Characters
 {
     public class Pawn : MonoBehaviour, IMovable, ISelectableObject
     {
-        private NavMeshAgent _navMeshAgent;
-        private Collider _collider; 
         public bool IsSelected { get; set; }
         
+        private NavMeshAgent _navMeshAgent;
         
         // Start is called before the first frame update
         void Start()
         {
             _navMeshAgent = GetComponent<NavMeshAgent>();
-            _collider = GetComponent<Collider>();
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            
+            MovementManager.Initialize().MovementTriggered += MoveToTarget;
         }
-        
-        public void MoveToTarget( RaycastHit hit)
+
+        private void OnDisable()
         {
-            _navMeshAgent.destination = hit.point;
+            MovementManager.Initialize().MovementTriggered -= MoveToTarget;
+        }
+
+        public virtual void MoveToTarget()
+        {
+            if(IsSelected)
+                _navMeshAgent.destination = MovementManager.GetHitPosition();
         }
 
         public Record GetRecord()

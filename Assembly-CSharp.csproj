@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\Managers\SelectionManager.cs" />
      <Compile Include="Assets\Scripts\Navigation\Movable.cs" />
      <Compile Include="Assets\Scripts\Behavior\Selectable.cs" />
+     <Compile Include="Assets\Scripts\Managers\MovementManager.cs" />
      <Folder Include="Assets" />
      <Folder Include="Assets\Prefab\Character" />
      <Folder Include="Assets\Scenes\P_Level_One" />

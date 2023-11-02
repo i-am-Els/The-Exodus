@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using Behavior;
 using UnityEngine;
 using Commons;
-using Navigation;
 
 namespace Managers
 {
@@ -10,12 +10,20 @@ namespace Managers
         
         private Camera _mainCamera;
         private SelectionManager _selectionManager;
-        public static bool HasCollided;
+        private MovementManager _movementManager;
+        private static bool _hasCollided;
         private void Awake()
         {
             _mainCamera = Camera.main;
             _selectionManager = SelectionManager.Initialize();
+            _movementManager = MovementManager.Initialize();
         }
+
+        private void Start()
+        {
+            
+        }
+
         private void Update()
         {
             // ================================================= INPUT =================================================
@@ -25,18 +33,18 @@ namespace Managers
                 // Navigation Manager do you trick
                 Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                HasCollided = Physics.Raycast(ray, out hit);
+                _hasCollided = Physics.Raycast(ray, out hit);
 
                 GameObject target = hit.collider.gameObject;
                 // Selection
                 // If selecting object that is not a location on the map.
-                if (HasCollided && !hit.collider.CompareTag(ETags.MapGrid.ToString()))
+                if (_hasCollided && !hit.collider.CompareTag(ETags.MapGrid.ToString()))
                 {
                     ISelectableObject selectableComponent = target.GetComponent<ISelectableObject>();
                     
                     if (selectableComponent != null)
                     {
-                        if(Input.GetKeyDown(KeyCode.LeftControl))
+                        if(Input.GetMouseButtonDown(0) && Input.GetKey(KeyCode.LeftControl))
                         {
                             RegisterMultipleHit(ref selectableComponent);
                         }else
@@ -46,7 +54,7 @@ namespace Managers
                     }
                 }
                 // Clicking the Map
-                else if (hit.collider.CompareTag(ETags.MapGrid.ToString()))
+                else if (_hasCollided && hit.collider.CompareTag(ETags.MapGrid.ToString()))
                 {
                     // Movement Manager moves the Players
                     // IMovable movableComponent = target.GetComponent<IMovable>();
@@ -54,14 +62,20 @@ namespace Managers
                     // {
                     //     movableComponent.MoveToTarget(hit);
                     // }
-                    
+                    MovementManager.SetHitPosition(hit.point);
+                    _movementManager.TriggerMovement();
                 }
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                ReleaseHits();
             }
         }
 
         private void RegisterSingleHit(ref ISelectableObject hit)
         {
-            ReleaseHits();
+            _selectionManager.FreeAllSelected();
             _selectionManager.AddObjectToList(ref hit);
         }
 
@@ -81,5 +95,12 @@ namespace Managers
         {
             _selectionManager.FreeAllSelected();
         }
+
+        public List<ISelectableObject> GetAllSelectedObjects()
+        {
+            return _selectionManager.GetAllSelected();
+        }
+        
+        
     }
 }

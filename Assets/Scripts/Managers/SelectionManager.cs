@@ -1,28 +1,24 @@
 using System.Collections.Generic;
 using Behavior;
+using UnityEngine;
 
 namespace Managers
 {
-    public class SelectionManager
+    
+    public sealed class SelectionManager
     {
-        public static bool IsMoving { get; set; }
-        private static SelectionManager _instance;
-        private List<ISelectableObject> _selectedGameObjects;
+        private static List<ISelectableObject> _selectedGameObjects = new ();
+        
+        private static readonly SelectionManager Instance = new ();
         private SelectionManager()
         {
-            IsMoving = false;
-        }
-        
-        public static SelectionManager Initialize()
-        {
-            if (_instance == null)
-            {
-                _instance = new SelectionManager();
-            }
-            
-            return _instance;
         }
 
+        public static SelectionManager Initialize()
+        {
+            return Instance;
+        }
+        
         public List<ISelectableObject> GetAllSelected()
         {
             return _selectedGameObjects;
