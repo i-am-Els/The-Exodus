@@ -1,59 +1,71 @@
 using System.Collections.Generic;
 using Behavior;
+using UnityEngine;
 
 namespace Managers
 {
-    public class SelectionManager
+    
+    public sealed class SelectionManager
     {
-        public static bool IsMoving { get; set; }
-        private static SelectionManager _instance;
-        private List<ISelectableObject> _selectedGameObjects;
+        public static bool IsDragging { get; private set; }
+        
+        public static Bounds SelectionBounds;
+        public static Camera MCamera;
+        public static Vector2[] RVector2S;
+        public static Texture TextureMat;
+        
+        private static readonly Dictionary<int, ISelectable> SelectedGameObjects = new ();
+        private static readonly SelectionManager Instance = new ();
         private SelectionManager()
         {
-            IsMoving = false;
+        }
+
+        public static SelectionManager GetInstance()
+        {
+            return Instance;
         }
         
-        public static SelectionManager Initialize()
+        public static Dictionary<int, ISelectable> GetAllSelected()
         {
-            if (_instance == null)
+            return SelectedGameObjects;
+        }
+
+        public static void FreeAllSelected()
+        {
+            foreach (var item in SelectedGameObjects.Values)
             {
-                _instance = new SelectionManager();
+                item.DeselectTarget();
             }
-            
-            return _instance;
+            SelectedGameObjects.Clear();
         }
 
-        public List<ISelectableObject> GetAllSelected()
+        public void AddObjectToDict(ref ISelectable selectable)
         {
-            return _selectedGameObjects;
+            var id = selectable.GetGameObject().GetInstanceID();
+            if (SelectedGameObjects.ContainsKey(id)) return;
+            SelectedGameObjects.Add(id, selectable);
+            selectable.SelectTarget();
         }
 
-        public void FreeAllSelected()
+        public static void RemoveObjectFromDict(ref ISelectable selectable)
         {
-            foreach (ISelectableObject item in _selectedGameObjects)
-            {
-                item.IsSelected = false;
-            }
-            _selectedGameObjects.Clear();
+            SelectedGameObjects.Remove(selectable.GetGameObject().GetInstanceID());
+            selectable.DeselectTarget();
         }
 
-        public void AddObjectToList(ref ISelectableObject newObject)
+        public static bool ObjectIsSelected(ref ISelectable selectable)
         {
-            _selectedGameObjects.Add(newObject);
-            newObject.IsSelected = true;
+            return SelectedGameObjects.ContainsKey(selectable.GetGameObject().GetInstanceID());
         }
 
-        public void RemoveObjectFromList(ref ISelectableObject oldObject)
+        public static void SetIsDragging(bool isDragging)
         {
-            _selectedGameObjects.Remove(oldObject);
-            oldObject.IsSelected = false;
+            IsDragging = isDragging;
         }
 
-        public bool ObjectIsSelected(ref ISelectableObject oldObject)
+        public static void SetSelectionBound(Bounds bounds)
         {
-            if (_selectedGameObjects.Contains(oldObject))
-                return true;
-            return false;
+            SelectionBounds = bounds;
         }
     }
 }
