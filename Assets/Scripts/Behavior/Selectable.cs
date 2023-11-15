@@ -8,8 +8,8 @@ namespace Behavior
         
     }
     
-    public interface ISelectableObject
-    { 
+    public interface ISelectable
+    {
         public bool IsSelected { get; set; }
         public Record GetRecord();
 
@@ -19,5 +19,8 @@ namespace Behavior
         public void HighlightInScene();
 
         public GameObject GetGameObject();
+
+        public void RegisterSelfHit(ref ISelectable selectable);
+
     }
 }

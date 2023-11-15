@@ -7,49 +7,65 @@ namespace Managers
     
     public sealed class SelectionManager
     {
-        private static List<ISelectableObject> _selectedGameObjects = new ();
+        public static bool IsDragging { get; private set; }
         
+        public static Bounds SelectionBounds;
+        public static Camera MCamera;
+        public static Vector2[] RVector2S;
+        public static Texture TextureMat;
+        
+        private static readonly Dictionary<int, ISelectable> SelectedGameObjects = new ();
         private static readonly SelectionManager Instance = new ();
         private SelectionManager()
         {
         }
 
-        public static SelectionManager Initialize()
+        public static SelectionManager GetInstance()
         {
             return Instance;
         }
         
-        public List<ISelectableObject> GetAllSelected()
+        public static Dictionary<int, ISelectable> GetAllSelected()
         {
-            return _selectedGameObjects;
+            return SelectedGameObjects;
         }
 
-        public void FreeAllSelected()
+        public static void FreeAllSelected()
         {
-            foreach (ISelectableObject item in _selectedGameObjects)
+            foreach (var item in SelectedGameObjects.Values)
             {
-                item.IsSelected = false;
+                item.DeselectTarget();
             }
-            _selectedGameObjects.Clear();
+            SelectedGameObjects.Clear();
         }
 
-        public void AddObjectToList(ref ISelectableObject newObject)
+        public void AddObjectToDict(ref ISelectable selectable)
         {
-            _selectedGameObjects.Add(newObject);
-            newObject.IsSelected = true;
+            var id = selectable.GetGameObject().GetInstanceID();
+            if (SelectedGameObjects.ContainsKey(id)) return;
+            SelectedGameObjects.Add(id, selectable);
+            selectable.SelectTarget();
         }
 
-        public void RemoveObjectFromList(ref ISelectableObject oldObject)
+        public static void RemoveObjectFromDict(ref ISelectable selectable)
         {
-            _selectedGameObjects.Remove(oldObject);
-            oldObject.IsSelected = false;
+            SelectedGameObjects.Remove(selectable.GetGameObject().GetInstanceID());
+            selectable.DeselectTarget();
         }
 
-        public bool ObjectIsSelected(ref ISelectableObject oldObject)
+        public static bool ObjectIsSelected(ref ISelectable selectable)
         {
-            if (_selectedGameObjects.Contains(oldObject))
-                return true;
-            return false;
+            return SelectedGameObjects.ContainsKey(selectable.GetGameObject().GetInstanceID());
+        }
+
+        public static void SetIsDragging(bool isDragging)
+        {
+            IsDragging = isDragging;
+        }
+
+        public static void SetSelectionBound(Bounds bounds)
+        {
+            SelectionBounds = bounds;
         }
     }
 }

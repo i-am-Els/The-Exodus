@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Navigation;
 using UnityEngine;
 
 namespace Managers
@@ -9,11 +7,11 @@ namespace Managers
     {
         public event Action MovementTriggered;
             
-        private static readonly MovementManager Instance = new();
+        private static readonly MovementManager Instance = new ();
 
         private static Vector3 _hitPosition;
             
-        public static MovementManager Initialize()
+        public static MovementManager GetInstance()
         {
             return Instance;
         }
@@ -21,11 +19,6 @@ namespace Managers
         public void  TriggerMovement()
         {
             MovementTriggered?.Invoke();
-        }
-
-        public void GetAllMovableObjects(List<IMovable> movableSelectedObjects)
-        {
-            
         }
 
         public static Vector3 GetHitPosition()
