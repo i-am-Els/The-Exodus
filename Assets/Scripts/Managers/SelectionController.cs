@@ -6,7 +6,7 @@ using Commons;
 
 namespace Managers
 {
-    public class SessionManager : MonoBehaviour
+    public class SelectionController : MonoBehaviour
     {
         private SelectionManager _selectionManager;
         private MovementManager _movementManager;
