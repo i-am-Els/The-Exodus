@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-using Behavior;
+using Behaviors;
+using Items;
 using Managers;
-using Navigation;
+
 
 namespace Characters
 {
@@ -14,6 +15,7 @@ namespace Characters
         private Renderer _renderer;
         private Color _color;
         private NavMeshAgent _navMeshAgent;
+        private GameInstanceManager _gim;
         
         // Start is called before the first frame update
         private void Start()
@@ -21,33 +23,30 @@ namespace Characters
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _renderer = GetComponent<Renderer>();
             _color = _renderer.material.color;
-        }
-
-        private void OnEnable()
-        {
-            MovementManager.GetInstance().MovementTriggered += MoveToTarget;
+            _gim = GameInstanceManager.GetInstance();
+            _gim.GetThisMovementManager().MovementTriggered += MoveToTarget;
         }
 
         private void OnDisable()
         {
-            MovementManager.GetInstance().MovementTriggered -= MoveToTarget;
+            _gim.GetThisMovementManager().MovementTriggered -= MoveToTarget;
         }
         
         private void Update()
         {
             // Listen to see if selector has pick this unit up while dragging
-            if (!SelectionManager.IsDragging) return;
+            if (!_gim.GetThisSelectionManager().IsDragging) return;
             ISelectable thisSelectable = this;
-            if (SelectionManager.SelectionBounds.Contains(SelectionManager.MCamera.WorldToViewportPoint(gameObject.transform.position)))
+            if (_gim.GetThisSelectionManager().SelectionBounds.Contains(SelectionManager.MCamera.WorldToViewportPoint(gameObject.transform.position)))
             {
-                SelectionManager.GetInstance().AddObjectToDict(ref thisSelectable);
+                _gim.GetThisSelectionManager().AddObjectToDict(ref thisSelectable);
                 SelectTarget();
             }
             else
             {
                 if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) return;
-                if (!SelectionManager.ObjectIsSelected(ref thisSelectable)) return;
-                SelectionManager.RemoveObjectFromDict(ref thisSelectable);
+                if (!_gim.GetThisSelectionManager().ObjectIsSelected(ref thisSelectable)) return;
+                _gim.GetThisSelectionManager().RemoveObjectFromDict(ref thisSelectable);
                 DeselectTarget();
             }
         }
@@ -60,9 +59,9 @@ namespace Characters
             }
         }
 
-        public Record GetRecord()
+        public CharacterRecord GetRecord()
         {
-            return new Record();
+            return new CharacterRecord("Pawn", ECharacterType.VillagerPawn);
         }
 
         public void SelectTarget()
@@ -89,7 +88,7 @@ namespace Characters
         
         public void RegisterSelfHit(ref ISelectable selectable)
         {
-            SelectionManager.GetInstance().AddObjectToDict(ref selectable);
+            _gim.GetThisSelectionManager().AddObjectToDict(ref selectable);
         }
     }
 }
