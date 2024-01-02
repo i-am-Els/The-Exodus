@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Behavior;
+using Behaviors;
 using UnityEngine;
 
 namespace Managers
@@ -7,63 +7,54 @@ namespace Managers
     
     public sealed class SelectionManager
     {
-        public static bool IsDragging { get; private set; }
+        public bool IsDragging { get; private set; }
         
-        public static Bounds SelectionBounds;
+        public Bounds SelectionBounds;
         public static Camera MCamera;
-        public static Vector2[] RVector2S;
-        public static Texture TextureMat;
+        public Vector2[] RVector2S;
+        public Texture TextureMat;
         
-        private static readonly Dictionary<int, ISelectable> SelectedGameObjects = new ();
-        private static readonly SelectionManager Instance = new ();
-        private SelectionManager()
+        private readonly Dictionary<int, ISelectable> _selectedGameObjects = new ();
+        
+        public Dictionary<int, ISelectable> GetAllSelected()
         {
+            return _selectedGameObjects;
         }
 
-        public static SelectionManager GetInstance()
+        public void FreeAllSelected()
         {
-            return Instance;
-        }
-        
-        public static Dictionary<int, ISelectable> GetAllSelected()
-        {
-            return SelectedGameObjects;
-        }
-
-        public static void FreeAllSelected()
-        {
-            foreach (var item in SelectedGameObjects.Values)
+            foreach (var item in _selectedGameObjects.Values)
             {
                 item.DeselectTarget();
             }
-            SelectedGameObjects.Clear();
+            _selectedGameObjects.Clear();
         }
 
         public void AddObjectToDict(ref ISelectable selectable)
         {
             var id = selectable.GetGameObject().GetInstanceID();
-            if (SelectedGameObjects.ContainsKey(id)) return;
-            SelectedGameObjects.Add(id, selectable);
+            if (_selectedGameObjects.ContainsKey(id)) return;
+            _selectedGameObjects.Add(id, selectable);
             selectable.SelectTarget();
         }
 
-        public static void RemoveObjectFromDict(ref ISelectable selectable)
+        public void RemoveObjectFromDict(ref ISelectable selectable)
         {
-            SelectedGameObjects.Remove(selectable.GetGameObject().GetInstanceID());
+            _selectedGameObjects.Remove(selectable.GetGameObject().GetInstanceID());
             selectable.DeselectTarget();
         }
 
-        public static bool ObjectIsSelected(ref ISelectable selectable)
+        public bool ObjectIsSelected(ref ISelectable selectable)
         {
-            return SelectedGameObjects.ContainsKey(selectable.GetGameObject().GetInstanceID());
+            return _selectedGameObjects.ContainsKey(selectable.GetGameObject().GetInstanceID());
         }
 
-        public static void SetIsDragging(bool isDragging)
+        public void SetIsDragging(bool isDragging)
         {
             IsDragging = isDragging;
         }
 
-        public static void SetSelectionBound(Bounds bounds)
+        public void SetSelectionBound(Bounds bounds)
         {
             SelectionBounds = bounds;
         }
